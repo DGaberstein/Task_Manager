@@ -16,7 +16,7 @@ class TaskManagerReplica:
     def __init__(self, root):
         self.root = root
         self.root.title("Task Manager")
-        self.root.geometry("1200x800")
+        self.root.geometry("1200x900")
         self.root.configure(bg='#1e1e1e')
 
         style = ttk.Style()
@@ -34,12 +34,16 @@ class TaskManagerReplica:
         self.disks_tab = ttk.Frame(self.notebook)
         self.ethernet_tab = ttk.Frame(self.notebook)
         self.gpu_tab = ttk.Frame(self.notebook)
-
+        self.uptime_tab = ttk.Frame(self.notebook)
+        self.cpu_temp_tab = ttk.Frame(self.notebook)
+        
         self.notebook.add(self.cpu_tab, text="CPU")
         self.notebook.add(self.memory_tab, text="Memory")
         self.notebook.add(self.disks_tab, text="Disks")
         self.notebook.add(self.ethernet_tab, text="Ethernet")
         self.notebook.add(self.gpu_tab, text="GPU")
+        self.notebook.add(self.uptime_tab, text="Uptime")
+        self.notebook.add(self.cpu_temp_tab, text="CPU Temperature")
 
         self.setup_tabs()
         self.timestamps = deque(maxlen=60)
@@ -50,6 +54,8 @@ class TaskManagerReplica:
         self.setup_disks_tab()
         self.setup_ethernet_tab()
         self.setup_gpu_tab()
+        self.setup_uptime_tab()
+        self.setup_cpu_temp_tab()
 
     def setup_cpu_tab(self):
         self.cpu_panel = ttk.Frame(self.cpu_tab)
@@ -131,12 +137,29 @@ class TaskManagerReplica:
         self.gpu_info_label = ttk.Label(self.gpu_panel, text="", font=('Arial', 12), foreground='white')
         self.gpu_info_label.pack(pady=10)
 
+    def setup_uptime_tab(self):
+        self.uptime_panel = ttk.Frame(self.uptime_tab)
+        self.uptime_panel.pack(expand=True, fill="both")
+
+        ttk.Label(self.uptime_panel, text="System Uptime", font=('Arial', 16), foreground='#00FF00').pack(pady=10)
+
+        self.uptime_info_label = ttk.Label(self.uptime_panel, text="", font=('Arial', 12), foreground='white')
+        self.uptime_info_label.pack(pady=10)
+
+    def setup_cpu_temp_tab(self):
+        self.cpu_temp_panel = ttk.Frame(self.cpu_temp_tab)
+        self.cpu_temp_panel.pack(expand=True, fill="both")
+
+        ttk.Label(self.cpu_temp_panel, text="CPU Temperature", font=('Arial', 16), foreground='#FF4500').pack(pady=10)
+
+        self.cpu_temp_info_label = ttk.Label(self.cpu_temp_panel, text="", font=('Arial', 12), foreground='white')
+        self.cpu_temp_info_label.pack(pady=10)
+
     def update_graphs(self):
         current_time = time.time()
 
         # Memory
         memory = psutil.virtual_memory()
-        # Convert to GB
         used_memory = memory.used / (1024 ** 3)
         total_memory = memory.total / (1024 ** 3)
         percent_memory_used = memory.percent
@@ -184,7 +207,6 @@ class TaskManagerReplica:
 
         # Disk Usage
         disk_usage = psutil.disk_usage('/')
-        # Convert to GB
         used_disk = disk_usage.used / (1024 ** 3)
         total_disk = disk_usage.total / (1024 ** 3)
         percent_disk_used = disk_usage.percent
@@ -212,7 +234,6 @@ class TaskManagerReplica:
         # Ethernet / Internet
         net_io = psutil.net_io_counters()
         net_usage = net_io.bytes_sent + net_io.bytes_recv
-        # Convert to MB
         self.ethernet_values.append(net_usage / (1024 ** 2))
 
         self.ax_ethernet.clear()
@@ -227,7 +248,10 @@ class TaskManagerReplica:
         self.canvas_ethernet.draw()
 
         self.ethernet_info_label.config(text=(
-            f"Network Usage: {net_usage / (1024 ** 2):.1f} MB"
+            f"Bytes Sent: {net_io.bytes_sent / (1024 ** 2):.1f} MB\n"
+            f"Bytes Received: {net_io.bytes_recv / (1024 ** 2):.1f} MB\n"
+            f"Packets Sent: {net_io.packets_sent}\n"
+            f"Packets Received: {net_io.packets_recv}"
         ))
 
         # GPU
@@ -236,7 +260,6 @@ class TaskManagerReplica:
                 import GPUtil
                 gpus = GPUtil.getGPUs()
                 if gpus:
-                    # Assuming we're interested in the first GPU
                     gpu = gpus[0]
                     temperature = gpu.temperature
                     utilization = gpu.load * 100
@@ -307,12 +330,10 @@ class TaskManagerReplica:
             self.ax_gpu.fill_between(self.timestamps, self.gpu_values, color='#FF4500', alpha=0.2)
             self.canvas_gpu.draw()
 
-            # Update every 1 second
         self.root.after(1000, self.update_graphs)
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskManagerReplica(root)
-    # Initial call to start updating graphs
     root.after(1000, app.update_graphs)
     root.mainloop()
