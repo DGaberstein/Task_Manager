@@ -133,7 +133,7 @@ class TaskManagerReplica:
 
     def update_graphs(self):
         current_time = time.time()
-        
+
         # Memory
         memory = psutil.virtual_memory()
         used_memory = memory.used / (1024 ** 3)  # Convert to GB
@@ -148,7 +148,7 @@ class TaskManagerReplica:
         self.ax_memory.set_ylim(0, total_memory)
         self.ax_memory.set_xlim(self.timestamps[0] if len(self.timestamps) > 1 else current_time - 60, current_time)
         self.ax_memory.set_yticks([0, total_memory/2, total_memory])
-        self.ax_memory.set_yticklabels(['0', f'{total_memory/2:.1f}', f'{total_memory:.1f}'])
+        self.ax_memory.set_yticklabels([f'{0:.1f}', f'{total_memory/2:.1f}', f'{total_memory:.1f}'])
         self.ax_memory.set_xticks([])
         self.ax_memory.set_title(f"Memory usage: {used_memory:.1f} GB / {total_memory:.1f} GB ({percent_memory_used:.1f}%)", color='white')
         self.ax_memory.grid(True, linestyle='--', alpha=0.3)
@@ -170,7 +170,7 @@ class TaskManagerReplica:
         self.ax_cpu.set_ylim(0, 100)
         self.ax_cpu.set_xlim(self.timestamps[0] if len(self.timestamps) > 1 else current_time - 60, current_time)
         self.ax_cpu.set_yticks([0, 50, 100])
-        self.ax_cpu.set_yticklabels(['0', '50', '100'])
+        self.ax_cpu.set_yticklabels([f'{0:.1f}', f'{50:.1f}', f'{100:.1f}'])
         self.ax_cpu.set_xticks([])
         self.ax_cpu.set_title(f"CPU Usage: {cpu_percent:.1f}%", color='white')
         self.ax_cpu.grid(True, linestyle='--', alpha=0.3)
@@ -308,4 +308,5 @@ class TaskManagerReplica:
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskManagerReplica(root)
+    root.after(1000, app.update_graphs)  # Initial call to start updating graphs
     root.mainloop()
