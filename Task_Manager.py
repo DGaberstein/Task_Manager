@@ -103,7 +103,7 @@ class TaskManagerReplica:
         self.ethernet_panel = ttk.Frame(self.ethernet_tab)
         self.ethernet_panel.pack(expand=True, fill="both")
 
-        ttk.Label(self.ethernet_panel, text="Ethernet/Internet Usage", font=('Arial', 16), foreground='#FFA500').pack(pady=10)
+        ttk.Label(self.ethernet_panel, text="Ethernet Usage", font=('Arial', 16), foreground='#FFA500').pack(pady=10)
 
         self.fig_ethernet, self.ax_ethernet = plt.subplots(figsize=(6, 4), facecolor='#1e1e1e')
         self.ax_ethernet.set_facecolor('#2d2d2d')
