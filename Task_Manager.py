@@ -16,7 +16,7 @@ class TaskManagerReplica:
     def __init__(self, root):
         self.root = root
         self.root.title("Task Manager")
-        self.root.geometry("1200x800")  # Adjust as needed
+        self.root.geometry("1200x800")
         self.root.configure(bg='#1e1e1e')
 
         style = ttk.Style()
@@ -42,7 +42,7 @@ class TaskManagerReplica:
         self.notebook.add(self.gpu_tab, text="GPU")
 
         self.setup_tabs()
-        self.timestamps = deque(maxlen=60)  # Initialize timestamps here
+        self.timestamps = deque(maxlen=60)
 
     def setup_tabs(self):
         self.setup_cpu_tab()
@@ -136,7 +136,8 @@ class TaskManagerReplica:
 
         # Memory
         memory = psutil.virtual_memory()
-        used_memory = memory.used / (1024 ** 3)  # Convert to GB
+        # Convert to GB
+        used_memory = memory.used / (1024 ** 3)
         total_memory = memory.total / (1024 ** 3)
         percent_memory_used = memory.percent
 
@@ -183,7 +184,8 @@ class TaskManagerReplica:
 
         # Disk Usage
         disk_usage = psutil.disk_usage('/')
-        used_disk = disk_usage.used / (1024 ** 3)  # Convert to GB
+        # Convert to GB
+        used_disk = disk_usage.used / (1024 ** 3)
         total_disk = disk_usage.total / (1024 ** 3)
         percent_disk_used = disk_usage.percent
 
@@ -210,7 +212,8 @@ class TaskManagerReplica:
         # Ethernet / Internet
         net_io = psutil.net_io_counters()
         net_usage = net_io.bytes_sent + net_io.bytes_recv
-        self.ethernet_values.append(net_usage / (1024 ** 2))  # Convert to MB
+        # Convert to MB
+        self.ethernet_values.append(net_usage / (1024 ** 2))
 
         self.ax_ethernet.clear()
         self.ax_ethernet.plot(self.timestamps, self.ethernet_values, color='#FFA500', linewidth=2)
@@ -227,13 +230,14 @@ class TaskManagerReplica:
             f"Network Usage: {net_usage / (1024 ** 2):.1f} MB"
         ))
 
-        # GPU (Placeholder)
+        # GPU
         if gpu_available:
             try:
                 import GPUtil
                 gpus = GPUtil.getGPUs()
                 if gpus:
-                    gpu = gpus[0]  # Assuming we're interested in the first GPU
+                    # Assuming we're interested in the first GPU
+                    gpu = gpus[0]
                     temperature = gpu.temperature
                     utilization = gpu.load * 100
                     memory_total = gpu.memoryTotal
@@ -303,10 +307,12 @@ class TaskManagerReplica:
             self.ax_gpu.fill_between(self.timestamps, self.gpu_values, color='#FF4500', alpha=0.2)
             self.canvas_gpu.draw()
 
-        self.root.after(1000, self.update_graphs)  # Update every 1 second
+            # Update every 1 second
+        self.root.after(1000, self.update_graphs)
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskManagerReplica(root)
-    root.after(1000, app.update_graphs)  # Initial call to start updating graphs
+    # Initial call to start updating graphs
+    root.after(1000, app.update_graphs)
     root.mainloop()
